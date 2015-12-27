@@ -1,3 +1,4 @@
+from django.core import mail
 from django.test import TestCase
 from eventex.subscriptions.forms import SubscriptionForm
 
@@ -12,7 +13,6 @@ class SubscribeTest(TestCase):
 
     def test_template(self):
         """Must use subscriptions/subscription_form.html"""
-        response = self.client.get('/inscricao/')
         self.assertTemplateUsed(self.resp, 'subscriptions/subscription_form.html')
 
     def test_html(self):
@@ -36,3 +36,59 @@ class SubscribeTest(TestCase):
         """Form must have 4 fields"""
         form = self.resp.context['form']
         self.assertSequenceEqual(['name', 'cpf', 'email', 'phone'], list(form.fields))
+
+class SubscribePostTest(TestCase):
+    def setUp(self):
+        data = dict(name='Marcelo Belli', cpf='12345678901', email='mark.kns@gmail.com', phone='41-8803-9137')
+        self.resp = self.client.post('/inscricao/', data)
+        self.email = mail.outbox[0]
+
+    def test_post(self):
+        """Valid POST should redirect to /inscricao/"""
+        self.assertEqual(302, self.resp.status_code)
+
+    def test_send_subscribe_email_subject(self):
+        self.assertEqual(1, len(mail.outbox))
+
+    def test_subscription_email_subject(self):
+        expect = 'Confirmação de inscrição'
+        self.assertEqual(expect, self.email.subject)
+
+    def test_subscription_email_from(self):
+        expect = 'contato@eventex.com.br'
+        self.assertEqual(expect, self.email.from_email)
+
+    def test_subscription_email_to(self):
+        expect = ['contato@eventex.com.br', 'mark.kns@gmail.com']
+        self.assertEqual(expect, self.email.to)
+
+    def test_subscription_email_body(self):
+        self.assertIn('Marcelo Belli', self.email.body)
+        self.assertIn('12345678901', self.email.body)
+        self.assertIn('mark.kns@gmail.com', self.email.body)
+        self.assertIn('41-8803-9137', self.email.body)
+
+class SubscribeInvalidPost(TestCase):
+    def setUp(self):
+        self.resp = self.client.post('/inscricao/', {})
+
+    def test_post(self):
+        """Invalid POST should not redirect"""
+        self.assertEqual(200, self.resp.status_code)
+
+    def test_template(self):
+        self.assertTemplateUsed(self.resp, 'subscriptions/subscription_form.html')
+
+    def test_has_form(self):
+        form = self.resp.context['form']
+        self.assertIsInstance(form, SubscriptionForm)
+
+    def test_form_has_errors(self):
+        form = self.resp.context['form']
+        self.assertTrue(form.errors)
+
+class SubscribeSuccessMessage(TestCase):
+    def test_message(self):
+        data = dict(name='Marcelo Belli', cpf='12345678901', email='mark.kns@gmail.com', phone='41-8803-9137')
+        response = self.client.post('/inscricao/', data, follow=True)
+        self.assertContains(response, 'Inscrição realizada com sucesso!')
