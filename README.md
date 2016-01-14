@@ -4,7 +4,7 @@ Sistema de Eventos encomendados pela Morena
 
 [![Build Status](https://travis-ci.org/mark-kns/eventex-wttd.svg?branch=master)](https://travis-ci.org/mark-kns/eventex-wttd)
 [![Code Climate](https://codeclimate.com/repos/56882e3590f38e03980003b5/badges/df463fa162f395c2a056/gpa.svg)](https://codeclimate.com/repos/56882e3590f38e03980003b5/feed)
-
+[![Code Health](https://landscape.io/github/mark-kns/eventex-wttd/master/landscape.svg?style=flat)](https://landscape.io/github/mark-kns/eventex-wttd/master)
 ## Como desenvolver?
 
 1. Clone o repositório.
