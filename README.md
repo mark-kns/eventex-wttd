@@ -19,7 +19,7 @@ git clone https://github.com/mark-kns/eventex-wttd.git eventex-wttd
 cd eventex-wttd
 python -m venv .wttd
 source .wttd/bin/activate
-pip -r install requirements.txt
+pip -r install requirements-dev.txt
 cp contrib/env-sample .env
 python manage.py test
 ```
